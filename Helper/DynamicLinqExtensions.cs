@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Linq.Dynamic.Core;
 using LinqKit;
 using MyCryptoMarket_MVC.Models;
 
@@ -116,7 +117,7 @@ namespace MyCryptoMarket_MVC.Helper
             {
                 likeValue = likeValue.Replace("[", "[[]").Replace("_", "[_]");
                 Expression<Func<string>> valExpr = () => likeValue;
-                var patExpr = Expression.Call(typeof(SqlFunctions).GetMethod("PatIndex", new[] { typeof(string), typeof(string) }), valExpr.Body, memExpr);
+                var patExpr = Expression.Call(typeof(Microsoft.EntityFrameworkCore.DbFunctions).GetMethod("PatIndex", new[] { typeof(string), typeof(string) }), valExpr.Body, memExpr);
                 var neExpr = Expression.NotEqual(patExpr, Expression.Convert(Expression.Constant(0), typeof(int?)));
                 return Expression.Lambda<Func<T, bool>>(neExpr, paramExpr);
             }

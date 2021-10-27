@@ -1,3 +1,6 @@
+//using System.Collections.Generic;
+
+using System.Collections;
 using System.Collections.Generic;
 
 namespace MyCryptoMarket_MVC.Models
@@ -63,7 +66,7 @@ namespace MyCryptoMarket_MVC.Models
         //
         // Summary:
         //     A filter expression.
-        public IList Filter { get; set; }
+        public List<string> Filter { get; set; }
         //
         // Summary:
         //     A group expression.
