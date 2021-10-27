@@ -1,0 +1,69 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@if (!SignInManager.IsSignedIn(User))
+{
+    <div class="text-center">
+        <h1 class="display-4">Welcome to MyCryptoMarket</h1>
+    </div>
+}
+else 
+{
+    <div class="">
+        <h1>Market Data</h1>
+        <div id="gridContainer"></div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(function() {
+            function isNotEmpty(value) {
+                return value !== undefined && value !== null && value !== "";
+            }
+
+            var obj = @Html.Raw(ViewData["Tickers"]);
+
+            $("#gridContainer").dxDataGrid({
+                dataSource: obj,
+                showBorders: true,
+                paging: {
+                    pageSize: 10
+                },
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [5, 10, 25, 50, 100]
+                },
+                columns: [{
+                    dataField: "Symbol",
+                    caption: "Symbol",
+                    dataType: "string"
+                }, {
+                    dataField: "WeightedAvgPrice",
+                    caption: "Price",
+                    dataType: "number"
+                }, {
+                    dataField: "PriceChangePercent",
+                    caption: "24h Change",
+                    dataType: "number"
+                }, {
+                    dataField: "HighPrice",
+                    caption: "24h High",
+                    dataType: "number"
+                }, {
+                    dataField: "LowPrice",
+                    caption: "24h Low",
+                    dataType: "number"
+                }, {
+                    dataField: "Volume",
+                    caption: "24h Volume",
+                    dataType: "number"
+                }]
+            }).dxDataGrid("instance");
+        })
+    </script>
+}
