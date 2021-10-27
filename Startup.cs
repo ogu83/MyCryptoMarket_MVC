@@ -32,7 +32,11 @@ namespace MyCryptoMarket_MVC
             services.AddDbContext<CryptoMarketContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("CryptoMarketContext")));
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddJsonOptions(options =>
+                {
+                    // Use the default property (Pascal) casing.
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

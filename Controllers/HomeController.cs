@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -30,37 +27,24 @@ namespace MyCryptoMarket_MVC.Controllers
         }
 
         public IActionResult Index()
-        {
-            if (User.Identity.IsAuthenticated)           
-            {
-                var query = _context.Tickers.ToList();
-                var myQuery = query.Where(x => x.WeightedAvgPrice > 0);
-                var tickers = Newtonsoft.Json.JsonConvert.SerializeObject((myQuery.ToList()));
-                ViewData["Tickers"] = tickers;
-            }
-            
+        {            
             return View();
         }
 
         [HttpPost]
-        public IActionResult OnGet24hTickers(DxGridRequest args)
+        public IActionResult OnGet24hTickers(DxRequestBase args)
         {
             var query = _context.Tickers.AsQueryable();
             var totalCount = query.Count();
 
-            if (args.sort != null)
+            if (args.Take > 0)
             {
-                //TODO: Sort Here
+                query = query.Take(args.Take);
             }
 
-            if (args.take > 0)
+            if (args.Skip > 0)
             {
-                query = query.Take(args.take);
-            }
-
-            if (args.skip > 0)
-            {
-                query = query.Skip(args.skip);
+                query = query.Skip(args.Skip);
             }
 
             var tickers = query.ToList();

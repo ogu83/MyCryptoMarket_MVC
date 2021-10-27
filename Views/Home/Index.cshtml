@@ -26,17 +26,62 @@ else
                 return value !== undefined && value !== null && value !== "";
             }
 
-            var obj = @Html.Raw(ViewData["Tickers"]);
+            var store = new DevExpress.data.CustomStore({
+                key: "Symbol",
+                load: function (loadOptions) {
+                    var deferred = $.Deferred(),
+                        args = {};
+
+                    [
+                        "skip",
+                        "take",
+                        "requireTotalCount",
+                        "requireGroupCount",
+                        "sort",
+                        "filter",
+                        "totalSummary",
+                        "group",
+                        "groupSummary"
+                    ].forEach(function(i) {
+                        if (i in loadOptions && isNotEmpty(loadOptions[i]))
+                            args[i] = JSON.stringify(loadOptions[i]);
+                    });
+                    $.ajax({
+                        url: "/Home/OnGet24hTickers",
+                        method: "POST",
+                        dataType: "json",
+                        data: args,
+                        success: function(result) {
+                            deferred.resolve(result.data, {
+                                totalCount: result.totalCount,
+                                summary: result.summary,
+                                groupCount: result.groupCount
+                            });
+                        },
+                        error: function() {
+                            deferred.reject("Data Loading Error");
+                        },
+                        timeout: 5000
+                    });
+
+                    return deferred.promise();
+                }
+            });
 
             $("#gridContainer").dxDataGrid({
-                dataSource: obj,
+                dataSource: store,                                
+                remoteOperations: true,
                 showBorders: true,
                 paging: {
                     pageSize: 10
                 },
                 pager: {
                     showPageSizeSelector: true,
-                    allowedPageSizes: [5, 10, 25, 50, 100]
+                    allowedPageSizes: [5, 10, 15, 20, 25, 50, 100]
+                },
+                searchPanel: {
+                    visible: true,                    
+                    placeholder: "Search a Symbol"
                 },
                 columns: [{
                     dataField: "Symbol",

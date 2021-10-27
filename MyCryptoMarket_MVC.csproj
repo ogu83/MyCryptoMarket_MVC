@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Binance.Net" Version="7.2.5" />
+    <PackageReference Include="LinqKit.Core" Version="1.1.26" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.11" />
