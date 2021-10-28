@@ -95,7 +95,7 @@ namespace MyCryptoMarket_MVC.Models
         //
         // Summary:
         //     A flag indicating whether the total number of data objects is required.
-        public bool RequireTotalCount { get; set; }
+        public bool RequireTotalCount { get; set; }        
         public bool? SortByPrimaryKey { get; set; }
         public bool AllowAsyncOverSync { get; set; }
     }

@@ -2,7 +2,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
 @if (!SignInManager.IsSignedIn(User))
@@ -22,93 +22,99 @@ else
 @section Scripts {
     <script>
         $(function() {
+
+
             function isNotEmpty(value) {
                 return value !== undefined && value !== null && value !== "";
             }
 
-            var store = new DevExpress.data.CustomStore({
-                key: "Symbol",
-                load: function (loadOptions) {
-                    var deferred = $.Deferred(),
-                        args = {};
+            isSignIn = '@(SignInManager.IsSignedIn(User))' == 'True';
 
-                    [
-                        "skip",
-                        "take",
-                        "requireTotalCount",
-                        "requireGroupCount",
-                        "sort",
-                        "filter",
-                        "totalSummary",
-                        "group",
-                        "groupSummary"
-                    ].forEach(function(i) {
-                        if (i in loadOptions && isNotEmpty(loadOptions[i]))
-                            args[i] = JSON.stringify(loadOptions[i]);
-                    });
-                    $.ajax({
-                        url: "/Home/OnGet24hTickers",
-                        method: "POST",
-                        dataType: "json",
-                        data: args,
-                        success: function(result) {
-                            deferred.resolve(result.data, {
-                                totalCount: result.totalCount,
-                                summary: result.summary,
-                                groupCount: result.groupCount
-                            });
-                        },
-                        error: function() {
-                            deferred.reject("Data Loading Error");
-                        },
-                        timeout: 5000
-                    });
+            if (isSignIn) {
+                var store = new DevExpress.data.CustomStore({
+                    key: "Symbol",
+                    load: function (loadOptions) {
+                        var deferred = $.Deferred(),
+                            args = {};
 
-                    return deferred.promise();
-                }
-            });
+                        [
+                            "skip",
+                            "take",
+                            "requireTotalCount",
+                            "requireGroupCount",
+                            "sort",
+                            "filter",
+                            "totalSummary",
+                            "group",
+                            "groupSummary"
+                        ].forEach(function(i) {
+                            if (i in loadOptions && isNotEmpty(loadOptions[i]))
+                                args[i] = JSON.stringify(loadOptions[i]);
+                        });
+                        $.ajax({
+                            url: "/Home/OnGet24hTickers",
+                            method: "POST",
+                            dataType: "json",
+                            data: args,
+                            success: function(result) {
+                                deferred.resolve(result.data, {
+                                    totalCount: result.totalCount,
+                                    summary: result.summary,
+                                    groupCount: result.groupCount
+                                });
+                            },
+                            error: function() {
+                                deferred.reject("Data Loading Error");
+                            },
+                            timeout: 50000
+                        });
 
-            $("#gridContainer").dxDataGrid({
-                dataSource: store,                                
-                remoteOperations: true,
-                showBorders: true,
-                paging: {
-                    pageSize: 10
-                },
-                pager: {
-                    showPageSizeSelector: true,
-                    allowedPageSizes: [5, 10, 15, 20, 25, 50, 100]
-                },
-                searchPanel: {
-                    visible: true,                    
-                    placeholder: "Search a Symbol"
-                },
-                columns: [{
-                    dataField: "Symbol",
-                    caption: "Symbol",
-                    dataType: "string"
-                }, {
-                    dataField: "WeightedAvgPrice",
-                    caption: "Price",
-                    dataType: "number"
-                }, {
-                    dataField: "PriceChangePercent",
-                    caption: "24h Change",
-                    dataType: "number"
-                }, {
-                    dataField: "HighPrice",
-                    caption: "24h High",
-                    dataType: "number"
-                }, {
-                    dataField: "LowPrice",
-                    caption: "24h Low",
-                    dataType: "number"
-                }, {
-                    dataField: "Volume",
-                    caption: "24h Volume",
-                    dataType: "number"
-                }]
-            }).dxDataGrid("instance");
+                        return deferred.promise();
+                    }
+                });
+
+                $("#gridContainer").dxDataGrid({
+                    dataSource: store,                                
+                    remoteOperations: true,
+                    showBorders: true,
+                    paging: {
+                        pageSize: 10
+                    },
+                    pager: {
+                        showPageSizeSelector: true,
+                        allowedPageSizes: [5, 10, 15, 20, 25, 50, 100]
+                    },
+                    searchPanel: {
+                        visible: true,                    
+                        placeholder: "Search a Symbol"
+                    },
+                    columns: [{
+                        dataField: "Symbol",
+                        caption: "Symbol",
+                        dataType: "string"
+                    }, {
+                        dataField: "WeightedAvgPrice",
+                        caption: "Price",
+                        dataType: "number"
+                    }, {
+                        dataField: "PriceChangePercent",
+                        caption: "24h Change",
+                        dataType: "number"
+                    }, {
+                        dataField: "HighPrice",
+                        caption: "24h High",
+                        dataType: "number"
+                    }, {
+                        dataField: "LowPrice",
+                        caption: "24h Low",
+                        dataType: "number"
+                    }, {
+                        dataField: "Volume",
+                        caption: "24h Volume",
+                        dataType: "number"
+                    }]
+                }).dxDataGrid("instance");
+            }
         })
     </script>
 }

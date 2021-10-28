@@ -115,11 +115,18 @@ namespace MyCryptoMarket_MVC.Models
             {
                 var retval = "Id";
                 var desc = false;
+
                 if (this.Sort != null && this.Sort.Any())
                 {
                     retval = this.Sort.FirstOrDefault().Selector;
                     desc = this.Sort.FirstOrDefault().Desc;
                 }
+
+                // if (this.Sort != null)
+                // {
+                //     retval = this.Sort.Selector;
+                //     desc = this.Sort.Desc;    
+                // }
 
                 return new Tuple<string, bool>(retval, desc);
             }

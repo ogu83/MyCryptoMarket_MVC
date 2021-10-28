@@ -1,0 +1,14 @@
+@using Microsoft.AspNetCore.Identity
+@using MyCryptoMarket_MVC.Models
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@{
+    ViewData["Title"] = "Trade";
+}
+@model TradeViewModel;
+
+<div class="row">
+    <div class="col-md-3">
+        <h2>@(Model.Symbol)</h2>
+    </div>
+</div>

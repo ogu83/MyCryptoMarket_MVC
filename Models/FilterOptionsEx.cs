@@ -28,11 +28,6 @@ namespace MyCryptoMarket_MVC.Models
                     {
                         _orderBy = _orderBy.Substring(0, _orderBy.Length - 3);
                     }
-
-                    if (_orderBy == "DocumentStatus")
-                    {
-                        _orderBy = "StatusId";
-                    }
                 }
             }
         }
