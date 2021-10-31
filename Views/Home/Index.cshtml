@@ -112,6 +112,12 @@ else
                         dataField: "Volume",
                         caption: "24h Volume",
                         dataType: "number"
+                    }, {
+                        caption: "Action",
+                        cellTemplate: function(content, options) {
+                            var symbol = options.data.Symbol;
+                            content.html(`<a href="/Trade/?symbol=${symbol}">Trade</a>`);
+                        }
                     }]
                 }).dxDataGrid("instance");
             }
