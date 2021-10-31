@@ -28,8 +28,8 @@ namespace MyCryptoMarket_MVC.Models
         //}
 
         [Key]
-        public int Id {get;set;}
-
+        public int Id { get; set;}
+        
         public string Symbol { get; set; }
 
         public decimal PriceChange { get; set; }

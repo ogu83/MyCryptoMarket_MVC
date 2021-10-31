@@ -11,4 +11,126 @@
     <div class="col-md-3">
         <h2>@(Model.Symbol)</h2>
     </div>
+    <div class="col-md-9">
+
+    </div>
 </div>
+<div class="row">
+    <div class="col-md-12">
+        <div id="chart"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function() {
+
+            function isNotEmpty(value) {
+                return value !== undefined && value !== null && value !== "";
+            }
+
+            var dataSource = new DevExpress.data.CustomStore({
+                key: "Id",
+                load: function (loadOptions) {
+
+                    var today = new Date();
+                    var deferred = $.Deferred(),
+                        args = {
+                            Symbol: '@(Model.Symbol)',
+                            Interval: 11,
+                            EndDate: today.toString(),
+                            StartDate: Date(today.setMonth(today.getMonth()-1)).toString()
+                        };
+
+                    [
+                        "skip",
+                        "take",
+                        "requireTotalCount",
+                        "requireGroupCount",
+                        "sort",
+                        "filter",
+                        "totalSummary",
+                        "group",
+                        "groupSummary"
+                    ].forEach(function(i) {
+                        if (i in loadOptions && isNotEmpty(loadOptions[i]))
+                            args[i] = JSON.stringify(loadOptions[i]);
+                    });
+                    $.ajax({
+                        url: "/Trade/GetKlines",
+                        method: "POST",
+                        dataType: "json",
+                        data: args,
+                        success: function(result) {
+                            deferred.resolve(result);
+                        },
+                        error: function() {
+                            deferred.reject("Data Loading Error");
+                        },
+                        timeout: 50000
+                    });
+
+                    return deferred.promise();
+                }
+            });
+
+
+            $("#chart").dxChart({
+                title: "Chart",
+                dataSource: dataSource,
+                commonSeriesSettings: {
+                    argumentField: "CloseTime",
+                    type: "candlestick"
+                },
+                legend: {
+                    itemTextPosition: 'left'
+                },
+                series: [
+                    { 
+                        name: "@(Model.Symbol)",
+                        openValueField: "Open", 
+                        highValueField: "High", 
+                        lowValueField: "Low", 
+                        closeValueField: "Close", 
+                        reduction: {
+                            color: "red"
+                        }
+                    }
+                ],    
+                valueAxis: {
+                    tickInterval: 1,
+                    title: { 
+                        text: ""
+                    },
+                    label: {
+                        format: {
+                            type: "currency",
+                            precision: 0
+                        }
+                    }
+                },
+                argumentAxis: {
+                    workdaysOnly: true,
+                    label: {
+                        format: "shortDate"
+                    }
+                },
+                "export": {
+                    enabled: true
+                },
+                tooltip: {
+                    enabled: true,
+                    location: "edge",
+                    customizeTooltip: function (arg) {
+                        return {
+                            text: "Open: $" + arg.openValue + "<br/>" +
+                                    "Close: $" + arg.closeValue + "<br/>" +
+                                    "High: $" + arg.highValue + "<br/>" +
+                                    "Low: $" + arg.lowValue + "<br/>"
+                        };
+                    }
+                }
+            });
+        });
+    </script>
+}

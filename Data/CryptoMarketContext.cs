@@ -17,7 +17,9 @@ namespace MyCryptoMarket_MVC.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Kline>().ToTable("Kline");
+            modelBuilder.Entity<Kline>().ToTable("Kline")
+                                        .HasKey(x => new { x.Symbol, x.Interval, x.OpenTime, x.CloseTime });
+                                        
             modelBuilder.Entity<Ticker>().ToTable("Ticker");
         }
     }

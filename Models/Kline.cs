@@ -1,11 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Binance.Net.Enums;
 
 namespace MyCryptoMarket_MVC.Models
 {
     public class Kline
     {
         [Key]
+        public int Id { get; set;}
+
         public string Symbol { get; set;}
         
         public DateTime OpenTime { get; set; }
@@ -21,6 +24,8 @@ namespace MyCryptoMarket_MVC.Models
         public decimal Volume { get; set; }
 
         public DateTime CloseTime { get; set; }
+
+        public KlineInterval Interval { get; set; }
 
         // [
         //   [
