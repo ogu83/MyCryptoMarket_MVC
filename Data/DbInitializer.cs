@@ -43,15 +43,29 @@ namespace MyCryptoMarket_MVC.Data
 
                 try
                 {
-                    await context.Klines.AddRangeAsync(klines);
+                    foreach (var kline in klines)
+                    {
+                        var cKline = context.Klines.FirstOrDefault(x => x.Symbol == kline.Symbol && x.OpenTime == kline.OpenTime && x.CloseTime == kline.CloseTime && x.Interval == kline.Interval);
+                        if (cKline == null) 
+                        {
+                            await context.Klines.AddAsync(kline);
+                        }
+                        else 
+                        {
+                            cKline.Low = kline.Low;
+                            cKline.High = kline.High;
+                            cKline.Open = kline.Open;
+                            cKline.Close = kline.Close;
+                            cKline.Volume = kline.Volume;                            
+                            context.Klines.Update(cKline);
+                        }
+                    }                    
                     context.SaveChanges();
                 }
-                catch (System.Exception)
+                catch (Exception ex)
                 {
-                    
+                    _ = ex;
                 }
-
-
             }
         }
 

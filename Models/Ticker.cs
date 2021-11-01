@@ -35,6 +35,8 @@ namespace MyCryptoMarket_MVC.Models
         public decimal PriceChange { get; set; }
 
         public decimal PriceChangePercent { get; set; }
+        
+        public decimal PriceChangePercent100 { get { return PriceChangePercent * .01m ; } }
 
         public decimal WeightedAvgPrice { get; set; }
 

@@ -96,9 +96,12 @@ else
                         caption: "Price",
                         dataType: "number"
                     }, {
-                        dataField: "PriceChangePercent",
+                        dataField: "PriceChangePercent100",
                         caption: "24h Change",
-                        dataType: "number"
+                        dataType: "number",
+                        format: {
+                            type: "percent"
+                        }
                     }, {
                         dataField: "HighPrice",
                         caption: "24h High",
@@ -110,7 +113,10 @@ else
                     }, {
                         dataField: "Volume",
                         caption: "24h Volume",
-                        dataType: "number"
+                        dataType: "number",
+                        format: {
+                            type: "decimal"
+                        }
                     }, {
                         caption: "Action",
                         cellTemplate: function(content, options) {

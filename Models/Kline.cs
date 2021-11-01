@@ -27,6 +27,8 @@ namespace MyCryptoMarket_MVC.Models
 
         public KlineInterval Interval { get; set; }
 
+        public string CloseTimeStr { get { return CloseTime.ToString("dd/MM/yyyy"); }}
+
         // [
         //   [
         //     1499040000000,      // Open time
