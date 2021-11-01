@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Identity
+@using Binance.Net.Enums
 @using MyCryptoMarket_MVC.Models
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
@@ -9,16 +10,43 @@
 
 <div class="row">
     <div class="col-md-3">
-        <h2>@(Model.Symbol)</h2>
+        <label for="txt_symbol">Symbol</label>
+        <h4 id="txt_symbol">@(Model.Symbol)</h2>
     </div>
-    <div class="col-md-9">
-
+    <div class="col-md-3">
+        <label for="txt_lastPrice">Last Price</label>
+        <h4 id="txt_lastPrice">@(Model.LastPrice)</h2>
+    </div>
+    <div class="col-md-3">
+        <label for="txt_Change">24h Change</label>
+        <h4 id="txt_Change">@(Model.PriceChangePercent.ToString("P"))</h2>
+    </div>
+    <div class="col-md-3">
+        <label for="txt_Volume">24h Volume</label>
+        <h4 id="txt_Volume">@(Model.Volume.ToString("N"))</h2>
     </div>
 </div>
+
 <div class="row">
+    <div class="col-md-4">
+        <label for="dd_Interval">Interval</label>
+        <div id="dd_Interval"></div>
+    </div>
+    <div class="col-md-4">
+        <label for="dt_StartDate">Start Date</label>
+        <div id="dt_StartDate"></div>
+    </div>
+    <div class="col-md-4">
+        <label for="dt_EndDate">End Date</label>
+        <div id="dt_EndDate"></div>
+    </div>
     <div class="col-md-12">
         <div id="chart"></div>
     </div>
+</div>
+
+<div class="row">
+    
 </div>
 
 @section Scripts {
@@ -29,33 +57,24 @@
                 return value !== undefined && value !== null && value !== "";
             }
 
-            var dataSource = new DevExpress.data.CustomStore({
-                key: "Id",
-                load: function (loadOptions) {
+            var today = new Date();
+            var _Symbol = '@(Model.Symbol)';
+            var _Interval = '@((int)KlineInterval.OneDay)';
+            var _EndDate = today.toISOString();
+            var _StartDate = new Date(today.setMonth(today.getMonth()-1)).toISOString();
+            var _Intervals = [];
 
-                    var today = new Date();
+            var chartDataSource = new DevExpress.data.CustomStore({
+                key: "Id",
+                load: function (loadOptions) {                    
                     var deferred = $.Deferred(),
                         args = {
-                            Symbol: '@(Model.Symbol)',
-                            Interval: 11,
-                            EndDate: today.toString(),
-                            StartDate: Date(today.setMonth(today.getMonth()-1)).toString()
+                            Symbol: _Symbol,
+                            Interval: _Interval,
+                            EndDate: _EndDate,
+                            StartDate: _StartDate
                         };
 
-                    [
-                        "skip",
-                        "take",
-                        "requireTotalCount",
-                        "requireGroupCount",
-                        "sort",
-                        "filter",
-                        "totalSummary",
-                        "group",
-                        "groupSummary"
-                    ].forEach(function(i) {
-                        if (i in loadOptions && isNotEmpty(loadOptions[i]))
-                            args[i] = JSON.stringify(loadOptions[i]);
-                    });
                     $.ajax({
                         url: "/Trade/GetKlines",
                         method: "POST",
@@ -74,12 +93,11 @@
                 }
             });
 
-
             $("#chart").dxChart({
                 title: "Chart",
-                dataSource: dataSource,
+                dataSource: chartDataSource,
                 commonSeriesSettings: {
-                    argumentField: "CloseTime",
+                    argumentField: "CloseTimeStr",
                     type: "candlestick"
                 },
                 legend: {
@@ -87,7 +105,7 @@
                 },
                 series: [
                     { 
-                        name: "@(Model.Symbol)",
+                        name: _Symbol,
                         openValueField: "Open", 
                         highValueField: "High", 
                         lowValueField: "Low", 
@@ -104,32 +122,64 @@
                     },
                     label: {
                         format: {
-                            type: "currency",
-                            precision: 0
+                            type: "decimal"                            
                         }
                     }
                 },
                 argumentAxis: {
-                    workdaysOnly: true,
+                    workdaysOnly: false,
                     label: {
                         format: "shortDate"
                     }
                 },
                 "export": {
-                    enabled: true
+                    enabled: false
                 },
                 tooltip: {
                     enabled: true,
                     location: "edge",
                     customizeTooltip: function (arg) {
                         return {
-                            text: "Open: $" + arg.openValue + "<br/>" +
-                                    "Close: $" + arg.closeValue + "<br/>" +
-                                    "High: $" + arg.highValue + "<br/>" +
-                                    "Low: $" + arg.lowValue + "<br/>"
+                            text: 
+                            "Open:  " + arg.openValue + "<br/>" +
+                            "Close: " + arg.closeValue + "<br/>" +
+                            "High:  " + arg.highValue + "<br/>" +
+                            "Low:   " + arg.lowValue + "<br/>"
                         };
                     }
                 }
+            });
+
+            $.ajax({
+                url: "/Trade/GetIntervals",
+                method: "POST",
+                dataType: "json",
+                data: null,
+                success: function(result) {       
+                    _Intervals = result;             
+                    $("#dd_Interval").dxSelectBox({
+                        dataSource: _Intervals,
+                        valueExpr: "Id",
+                        displayExpr: "Value",
+                        placeholder: "Interval"
+                    });
+                    $("#dd_Interval").dxSelectBox("instance").option("value", 11);
+                },
+                error: function() {                    
+                },
+                timeout: 50000
+            });
+
+            $("#dt_StartDate").dxDateBox({
+                type: "date",
+                value: _StartDate,
+                displayFormat: "dd/MM/yyyy",                
+            });
+
+            $("#dt_EndDate").dxDateBox({
+                type: "date",
+                value: _EndDate,
+                displayFormat: "dd/MM/yyyy",
             });
         });
     </script>
