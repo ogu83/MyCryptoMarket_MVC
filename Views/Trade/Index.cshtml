@@ -9,44 +9,62 @@
 @model TradeViewModel;
 
 <div class="row">
-    <div class="col-md-3">
-        <label for="txt_symbol">Symbol</label>
-        <h4 id="txt_symbol">@(Model.Symbol)</h2>
-    </div>
-    <div class="col-md-3">
-        <label for="txt_lastPrice">Last Price</label>
-        <h4 id="txt_lastPrice">@(Model.LastPrice)</h2>
-    </div>
-    <div class="col-md-3">
-        <label for="txt_Change">24h Change</label>
-        <h4 id="txt_Change">@(Model.PriceChangePercent.ToString("P"))</h2>
-    </div>
-    <div class="col-md-3">
-        <label for="txt_Volume">24h Volume</label>
-        <h4 id="txt_Volume">@(Model.Volume.ToString("N"))</h2>
-    </div>
-</div>
-
-<div class="row">
     <div class="col-md-4">
-        <label for="dd_Interval">Interval</label>
-        <div id="dd_Interval"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="txt_symbol">Symbol</label>
+                <h4 id="txt_symbol">@(Model.Symbol)</h2>
+            </div>
+            <div class="col-md-6">
+                <label for="txt_lastPrice">Last Price</label>
+                <h4 id="txt_lastPrice">@(Model.LastPrice)</h2>
+            </div>
+            <div class="col-md-6">
+                <label for="txt_Change">24h Change</label>
+                <h4 id="txt_Change">@(Model.PriceChangePercent.ToString("P"))</h2>
+            </div>
+            <div class="col-md-6">
+                <label for="txt_Volume">24h Volume</label>
+                <h4 id="txt_Volume">@(Model.Volume.ToString("N"))</h2>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="dd_Interval">Interval</label>
+                    <div id="dd_Interval"></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="dt_StartDate">Start Date</label>
+                    <div id="dt_StartDate"></div>
+                </div>
+                <div class="col-md-4">
+                    <label for="dt_EndDate">End Date</label>
+                    <div id="dt_EndDate"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <label for="dt_StartDate">Start Date</label>
-        <div id="dt_StartDate"></div>
-    </div>
-    <div class="col-md-4">
-        <label for="dt_EndDate">End Date</label>
-        <div id="dt_EndDate"></div>
-    </div>
-    <div class="col-md-12">
+    <div class="col-md-8">
         <div id="chart"></div>
     </div>
 </div>
 
 <div class="row">
-    
+    <div class="col-md-6">
+        <div id="tab_Trade"></div>
+        <div class="row">
+            <div class="col-md-8">
+                <span id="txt_BuySymbol_Label">Buy</span> <span id="txt_BuySymbol">@Model.Symbol</span>:                
+            </div>
+            <div class="col-md-4">
+                Balance: <span id="txt_SymbolBalance">0.00</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+
+    </div>
 </div>
 
 @section Scripts {
@@ -56,17 +74,86 @@
             function isNotEmpty(value) {
                 return value !== undefined && value !== null && value !== "";
             }
-
-            var today = new Date();
+            
             var _Symbol = '@(Model.Symbol)';
-            var _Interval = '@((int)KlineInterval.OneDay)';
+            var _Interval = @((int)KlineInterval.OneDay);
+            
+            var today = new Date();
             var _EndDate = today.toISOString();
             var _StartDate = new Date(today.setMonth(today.getMonth()-1)).toISOString();
+            today = new Date();
+            const _dayToMS = 24 * 60 * 60 * 1000;
+
             var _Intervals = [];
+
+            var refreshGridLock = false;
+
+            var IntervalDateMap = {
+                '@((int)KlineInterval.OneDay)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.EightHour)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.FifteenMinutes)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-7*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.FiveMinutes)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-7*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.FourHour)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.OneHour)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.OneMinute)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-7*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.OneMonth)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-365*3*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.OneWeek)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-365*3*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.SixHour)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.ThirtyMinutes)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-7*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.ThreeDay)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.ThreeMinutes)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-7*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.TwelveHour)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                },
+                '@((int)KlineInterval.TwoHour)' : {
+                    EndDate: today.toISOString(),
+                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                }
+            };
 
             var chartDataSource = new DevExpress.data.CustomStore({
                 key: "Id",
-                load: function (loadOptions) {                    
+                load: function (loadOptions) {
                     var deferred = $.Deferred(),
                         args = {
                             Symbol: _Symbol,
@@ -101,7 +188,8 @@
                     type: "candlestick"
                 },
                 legend: {
-                    itemTextPosition: 'left'
+                    itemTextPosition: 'left',
+                    visible: false                    
                 },
                 series: [
                     { 
@@ -122,7 +210,7 @@
                     },
                     label: {
                         format: {
-                            type: "decimal"                            
+                            type: "decimal"
                         }
                     }
                 },
@@ -141,10 +229,10 @@
                     customizeTooltip: function (arg) {
                         return {
                             text: 
-                            "Open:  " + arg.openValue + "<br/>" +
-                            "Close: " + arg.closeValue + "<br/>" +
-                            "High:  " + arg.highValue + "<br/>" +
-                            "Low:   " + arg.lowValue + "<br/>"
+                                "Open:  " + arg.openValue + "<br/>" +
+                                "Close: " + arg.closeValue + "<br/>" +
+                                "High:  " + arg.highValue + "<br/>" +
+                                "Low:   " + arg.lowValue + "<br/>"
                         };
                     }
                 }
@@ -155,17 +243,28 @@
                 method: "POST",
                 dataType: "json",
                 data: null,
-                success: function(result) {       
-                    _Intervals = result;             
+                success: function(result) {
+                    _Intervals = result;
                     $("#dd_Interval").dxSelectBox({
                         dataSource: _Intervals,
                         valueExpr: "Id",
                         displayExpr: "Value",
-                        placeholder: "Interval"
+                        placeholder: "Interval",
+                        onValueChanged: function(data) {
+                            _StartDate = IntervalDateMap[data.value].StartDate;
+                            _EndDate = IntervalDateMap[data.value].EndDate;
+                            _Interval = data.value;
+                            refreshGridLock = true;
+                            $("#dt_StartDate").dxDateBox("instance").option("value", _StartDate);
+                            $("#dt_EndDate").dxDateBox("instance").option("value", _EndDate);
+                            $("#chart").dxChart("instance").refresh();
+                            refreshGridLock = false;
+                        }
                     });
-                    $("#dd_Interval").dxSelectBox("instance").option("value", 11);
+                    $("#dd_Interval").dxSelectBox("instance").option("value", _Interval);
                 },
-                error: function() {                    
+                error: function() {
+
                 },
                 timeout: 50000
             });
@@ -173,13 +272,44 @@
             $("#dt_StartDate").dxDateBox({
                 type: "date",
                 value: _StartDate,
-                displayFormat: "dd/MM/yyyy",                
+                displayFormat: "dd/MM/yyyy",
+                onValueChanged: function(data) {
+                    _StartDate = data.value;
+                    if (!refreshGridLock) {
+                        $("#chart").dxChart("instance").refresh();
+                    }                        
+                }
             });
 
             $("#dt_EndDate").dxDateBox({
                 type: "date",
                 value: _EndDate,
                 displayFormat: "dd/MM/yyyy",
+                onValueChanged: function(data) {
+                    _EndDate = data.value;
+                    if (!refreshGridLock) {
+                        $("#chart").dxChart("instance").refresh();
+                    }
+                }
+            });
+
+            const tabItems = [
+                { 
+                    text: "Limit",
+                    txt_BuySymbol_Label: "Buy"
+                },
+                {
+                    text: "Market",
+                    txt_BuySymbol_Label: "Instant Buy"
+                }                
+            ];
+
+            $('#tab_Trade').dxTabs({                
+                dataSource: tabItems,
+                selectedIndex: 0,
+                onItemClick(e) {                    
+                    $("#txt_BuySymbol_Label").html(e.itemData.txt_BuySymbol_Label);
+                }
             });
         });
     </script>
