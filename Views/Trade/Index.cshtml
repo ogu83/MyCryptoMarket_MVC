@@ -51,18 +51,118 @@
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div id="tab_Trade"></div>
-        <div class="row">
-            <div class="col-md-8">
-                <span id="txt_BuySymbol_Label">Buy</span> <span id="txt_BuySymbol">@Model.Symbol</span>:                
+        <div class="content">
+            <div class="row" id="tab_Limit_Content">
+
+                <div class="col-md-6">
+                    <section class="panel" style="margin: auto; min-height: 332px;">
+                        <header class="panel-heading bg-white">
+                            <span class="title">Buy <span>@Model.Symbol </span></span>
+                            <span class="text-muted m-l-small pull-right">Balance: <span class="symbol2-available balance-text">0.00</span></span>
+                        </header>
+                        <div class="block">
+                            <form class="form">
+                                <fieldset>
+                                    <div class="control-group form-group ">
+                                        <label class="control-label" for="buy-amount">Amount to Buy</label>
+                                        <div class="controls">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control input-small" name="amount" id="buy-amount" autocomplete="off" value="">
+                                                <span class="input-group-addon"> </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-group form-group ">
+                                        <label class="control-label" for="buy-price">Price <span>@(Model.Symbol)</span></label>
+                                        <div class="controls">
+                                            <div class="input-group">
+                                                <input type="number" class="form-control input-small" name="price" id="buy-price" autocomplete="off" value="@(Model.LastPrice)">
+                                                <span class="input-group-addon"> </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-group mini form-group">
+                                        <div class="trade-form-auth-block">
+                                            <button class="trade-form-auth-block-link btn btn-primary" href="#">Buy</a> 
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div class="checkout">
+                                    <div class="total checkout__total">
+                                        <span class="total__label">Total</span> <span class="total__value">0.00</span> 
+                                    </div>
+                                    @* <div class="fee checkout__fee">
+                                        <div class="fee__wrapper">
+                                            <span class="fee__label">Fee</span><span class="fee__value-maker"> 0.00 </span><span class="fee__divider"></span>
+                                            <span class="fee__value-taker">0.00 </span><span class="fee__symbol">USD</span>
+                                        </div>
+                                    </div> *@
+                                </div>
+                                <div class="row row-alert"></div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="col-md-6">
+                    <section class="panel" style="margin: auto; min-height: 332px;">
+                        <header class="panel-heading bg-white">
+                            <span class="title">Sell <span>@Model.Symbol </span></span>
+                            <span class="text-muted m-l-small pull-right">Balance: <span class="symbol2-available balance-text">0.00</span></span>
+                        </header>
+                        <div class="block">
+                            <form class="form">
+                                <fieldset>
+                                    <div class="control-group form-group ">
+                                        <label class="control-label" for="sell-amount">Amount to Sell</label>
+                                        <div class="controls">
+                                            <div class="input-group">
+                                                <input type="number" class="form-control input-small" name="amount" id="sell-amount" autocomplete="off" value="">
+                                                <span class="input-group-addon"> </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-group form-group ">
+                                        <label class="control-label" for="sell-price">Price <span>@(Model.Symbol)</span></label>
+                                        <div class="controls">
+                                            <div class="input-group">
+                                                <input type="number" class="form-control input-small" name="price" id="sell-price" autocomplete="off" value="@(Model.LastPrice)">
+                                                <span class="input-group-addon"> </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-group mini form-group">
+                                        <div class="trade-form-auth-block">
+                                            <button class="trade-form-auth-block-link btn btn-primary" href="#">Sell</a> 
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div class="checkout">
+                                    <div class="total checkout__total">
+                                        <span class="total__label">Total</span> <span class="total__value">0.00</span> 
+                                    </div>
+                                    @* <div class="fee checkout__fee">
+                                        <div class="fee__wrapper">
+                                            <span class="fee__label">Fee</span><span class="fee__value-maker"> 0.00 </span><span class="fee__divider"></span>
+                                            <span class="fee__value-taker">0.00 </span><span class="fee__symbol">USD</span>
+                                        </div>
+                                    </div> *@
+                                </div>
+                                <div class="row row-alert"></div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+
             </div>
-            <div class="col-md-4">
-                Balance: <span id="txt_SymbolBalance">0.00</span>
-            </div>
-        </div>
+        </div>        
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
+
+    </div>
+    <div class="col-md-4">
 
     </div>
 </div>
@@ -135,7 +235,7 @@
                 },
                 '@((int)KlineInterval.ThreeDay)' : {
                     EndDate: today.toISOString(),
-                    StartDate: new Date(today-30*2*_dayToMS).toISOString()
+                    StartDate: new Date(today-30*2*3*_dayToMS).toISOString()
                 },
                 '@((int)KlineInterval.ThreeMinutes)' : {
                     EndDate: today.toISOString(),
@@ -301,14 +401,19 @@
                 {
                     text: "Market",
                     txt_BuySymbol_Label: "Instant Buy"
-                }                
+                }
             ];
 
             $('#tab_Trade').dxTabs({                
                 dataSource: tabItems,
                 selectedIndex: 0,
                 onItemClick(e) {                    
-                    $("#txt_BuySymbol_Label").html(e.itemData.txt_BuySymbol_Label);
+                    if (e.itemData.text == "Limit") {
+                        $("#tab_Limit_Content").show();
+                    }
+                    else {
+                        $("#tab_Limit_Content").hide();
+                    }
                 }
             });
         });
