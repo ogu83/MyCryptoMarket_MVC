@@ -176,6 +176,7 @@
             }
             
             var _Symbol = '@(Model.Symbol)';
+            var _LastPrice = @Model.LastPrice;
             var _Interval = @((int)KlineInterval.OneDay);
             
             var today = new Date();
@@ -416,6 +417,28 @@
                     }
                 }
             });
+
+            var buyOrders = [];
+            var sellOrders = [];
+
+            let base_ws_url = "wss://stream.binance.com:9443/ws";            
+            let orderBookWs = new WebSocket(`${base_ws_url}/${_Symbol.toLowerCase()}@@depth`);
+            orderBookWs.onmessage = (event) => {
+                sellOrders = event.data.b.map(x => new {
+                    "Price": x[0],
+                    "Quantity": x[1],
+                    "Total": x[0] * x[1]
+                });
+
+                buyOrders = event.data.a.map(x => new {
+                    "Price": x[0],
+                    "Quantity": x[1],
+                    "Total": x[0] * x[1]
+                });
+                
+                console.log(sellOrders);
+                console.log(buyOrders);
+            }
         });
     </script>
 }
