@@ -160,7 +160,8 @@
         </div>        
     </div>
     <div class="col-md-4">
-
+        <label for="grd_buyOrders">Buy Orders</label>
+        <div id="grd_buyOrders"></div>
     </div>
     <div class="col-md-4">
 
@@ -183,7 +184,11 @@
             var _EndDate = today.toISOString();
             var _StartDate = new Date(today.setMonth(today.getMonth()-1)).toISOString();
             today = new Date();
-            const _dayToMS = 24 * 60 * 60 * 1000;
+
+            const _secondToMS = 1000;
+            const _minuteToMS = 60 * _secondToMS;
+            const _houtToMS = 60 * _minuteToMS;
+            const _dayToMS = 24 * _houtToMS;
 
             var _Intervals = [];
 
@@ -421,24 +426,28 @@
             var buyOrders = [];
             var sellOrders = [];
 
+            $("#grd_buyOrders").dxDataGrid({
+                dataSource: buyOrders
+            });
+
+            $("#grd_sellOrders").dxDataGrid({
+                dataSource: sellOrders
+            });
+
             let base_ws_url = "wss://stream.binance.com:9443/ws";            
             let orderBookWs = new WebSocket(`${base_ws_url}/${_Symbol.toLowerCase()}@@depth`);
+            let lastUpdateTime = new Date();            
             orderBookWs.onmessage = (event) => {
-                sellOrders = event.data.b.map(x => new {
-                    "Price": x[0],
-                    "Quantity": x[1],
-                    "Total": x[0] * x[1]
-                });
-
-                buyOrders = event.data.a.map(x => new {
-                    "Price": x[0],
-                    "Quantity": x[1],
-                    "Total": x[0] * x[1]
-                });
+                sellOrders = JSON.parse(event.data).b.map(function(val) { return { "Price": val[0], "Quantity": val[1], "Total": val[0] * val[1] }; });
+                buyOrders = JSON.parse(event.data).a.map(function(val) { return { "Price": val[0], "Quantity": val[1], "Total": val[0] * val[1] }; });
                 
-                console.log(sellOrders);
-                console.log(buyOrders);
-            }
+                if ((lastUpdateTime + _secondToMS) > new Date()) {
+                    $("#grd_buyOrders").dxDataGrid("instance").refresh();
+                    $("#grd_sellOrders").dxDataGrid("instance").refresh();
+                    lastUpdateTime = new Date();
+                }
+            }            
         });
+
     </script>
 }
