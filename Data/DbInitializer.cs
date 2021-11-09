@@ -9,6 +9,27 @@ namespace MyCryptoMarket_MVC.Data
 {
     public static class DbInitializer
     {
+
+        public static async Task InitializeExchangeInfo(CryptoMarketContext context)
+        {            
+            var binanceClient = new BinanceClient();
+            var exchangeInfoResponse = await binanceClient.Spot.System.GetExchangeInfoAsync();
+            if (exchangeInfoResponse.Success) 
+            {
+                var symbols = exchangeInfoResponse.Data.Symbols.Select(x => new Symbol 
+                {
+                    Name = x.Name,
+                    Status = x.Status,
+                    BaseAsset = x.BaseAsset,
+                    BaseAssetPrecision = x.BaseAssetPrecision,
+                    QuoteAsset = x.QuoteAsset,
+                    QuotePrecision = x.QuoteAssetPrecision,
+                    BaseCommissionPrecision = x.BaseCommissionPrecision,
+                    QuoteCommissionPrecision = x.QuoteCommissionPrecision
+                });
+            }
+        }
+
         public static async Task InitializeKline(
             CryptoMarketContext context, 
             string Symbol, 
