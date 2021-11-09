@@ -164,7 +164,8 @@
         <div id="grd_buyOrders"></div>
     </div>
     <div class="col-md-4">
-
+        <label for="grd_sellOrders">Sell Orders</label>
+        <div id="grd_sellOrders"></div>
     </div>
 </div>
 
@@ -423,30 +424,135 @@
                 }
             });
 
-            var buyOrders = [];
-            var sellOrders = [];
+            const buyOrders = [];
+            const sellOrders = [];
 
-            $("#grd_buyOrders").dxDataGrid({
-                dataSource: buyOrders
+            const buyOrdersStore = new DevExpress.data.ArrayStore({
+                key: 'Price',
+                data: buyOrders,
             });
 
-            $("#grd_sellOrders").dxDataGrid({
-                dataSource: sellOrders
+            const sellOrdersStore = new DevExpress.data.ArrayStore({
+                key: 'Price',
+                data: sellOrders,
             });
 
-            let base_ws_url = "wss://stream.binance.com:9443/ws";            
+            const buyOrderColumns = [ { dataField: "Price", sortOrder: 'asc' }, { dataField: "Quantity" }, { dataField: "Total" } ];
+            const sellOrderColumns = [ { dataField: "Price", sortOrder: 'desc' }, { dataField: "Quantity" }, { dataField: "Total" } ];
+
+            var _grd_buyOrders, _grd_sellOrders;
+
+            let base_ws_url = "wss://stream.binance.com:9443/ws";
             let orderBookWs = new WebSocket(`${base_ws_url}/${_Symbol.toLowerCase()}@@depth`);
-            let lastUpdateTime = new Date();            
+            let lastUpdateTime = new Date();
             orderBookWs.onmessage = (event) => {
-                sellOrders = JSON.parse(event.data).b.map(function(val) { return { "Price": val[0], "Quantity": val[1], "Total": val[0] * val[1] }; });
-                buyOrders = JSON.parse(event.data).a.map(function(val) { return { "Price": val[0], "Quantity": val[1], "Total": val[0] * val[1] }; });
-                
-                if ((lastUpdateTime + _secondToMS) > new Date()) {
-                    $("#grd_buyOrders").dxDataGrid("instance").refresh();
-                    $("#grd_sellOrders").dxDataGrid("instance").refresh();
-                    lastUpdateTime = new Date();
+
+                var leftDate = new Date(lastUpdateTime - -1 * _secondToMS);
+                var rightDate = new Date();
+
+                if (leftDate < rightDate) {
+
+                    var new_sellOrders = JSON.parse(event.data).b.map(function(val) { 
+                        return { 
+                            Price: parseFloat(val[0]), 
+                            Quantity: parseFloat(val[1]), 
+                            Total: val[0] * val[1] 
+                        }; 
+                    });
+
+                    var new_buyOrders = JSON.parse(event.data).a.map(function(val) { 
+                        return { 
+                            Price: parseFloat(val[0]), 
+                            Quantity: parseFloat(val[1]), 
+                            Total: val[0] * val[1] 
+                        }; 
+                    });
+
+                    for (o in new_buyOrders) {
+                        var order = new_buyOrders[o];
+                        var isUpdate = (buyOrdersStore._array.map(x => x.Price).includes(order.Price));
+                        if (isUpdate) {
+                            if (parseFloat(order.Quantity) > 0) {
+                                buyOrdersStore.push([{ type: 'update', data: order, key: order.Price }]);
+                            }
+                            else {
+                                buyOrdersStore.remove(order.Price);
+                            }
+                        }
+                        else {
+                            if (parseFloat(order.Quantity) > 0) {
+                                buyOrdersStore.push([{ type: 'insert', data: order }]);
+                            }
+                        }
+                    }
+
+                    for (o in new_sellOrders) {
+                        var order = new_sellOrders[o];
+                        var isUpdate = (sellOrdersStore._array.map(x => x.Price).includes(order.Price));
+                        if (isUpdate) {
+                            if (parseFloat(order.Quantity) > 0) {
+                                sellOrdersStore.push([{ type: 'update', data: order, key: order.Price }]);
+                            }
+                            else {
+                                sellOrdersStore.remove(order.Price);
+                            }
+                        }
+                        else {
+                            if (parseFloat(order.Quantity) > 0) {
+                                sellOrdersStore.push([{ type: 'insert', data: order }]);
+                            }
+                        }
+                    }
+
+                    if (_grd_buyOrders == null) {
+                        _grd_buyOrders = $("#grd_buyOrders").dxDataGrid({
+                            dataSource: {
+                                store: buyOrdersStore,
+                                reshapeOnPush: true,
+                            },
+                            columns: buyOrderColumns,
+                            repaintChangesOnly: true,
+                            columnAutoWidth: true,
+                            showBorders: true,
+                            paging: {
+                                pageSize: 9
+                            },
+                            pager: {
+                                showPageSizeSelector: true,
+                                allowedPageSizes: [6, 9, 18, 36, 72, 144]
+                            },
+                        }).dxDataGrid("instance");
+                    }
+                    else {
+                        @* _grd_buyOrders.refresh(); *@
+                    }
+
+                    if (_grd_sellOrders == null) {
+                        _grd_sellOrders = $("#grd_sellOrders").dxDataGrid({
+                            dataSource: {
+                                store: sellOrdersStore,
+                                reshapeOnPush: true,
+                            },
+                            columns: sellOrderColumns,
+                            repaintChangesOnly: true,
+                            columnAutoWidth: true,
+                            showBorders: true,
+                            paging: {
+                                pageSize: 9
+                            },
+                            pager: {
+                                showPageSizeSelector: true,
+                                allowedPageSizes: [6, 9, 18, 36, 72, 144]
+                            },
+                        }).dxDataGrid("instance");
+                    } 
+                    else {
+                        @* _grd_sellOrders.refresh(); *@
+                    }
+                    
+                    lastUpdateTime = rightDate;
                 }
-            }            
+            }
         });
 
     </script>
