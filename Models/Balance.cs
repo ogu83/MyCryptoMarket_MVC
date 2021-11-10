@@ -16,5 +16,5 @@ namespace MyCryptoMarket_MVC.Models
         public decimal AmountInUse { get; set; }
 
         public decimal AvailableAmount { get { return TotalAmount - AmountInUse; } }
-    }   
+    }    
 }
