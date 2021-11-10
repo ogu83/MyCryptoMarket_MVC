@@ -7,7 +7,7 @@ namespace MyCryptoMarket_MVC.Models
     public class Kline
     {
         [Key]
-        public int Id { get; set;}
+        public int Id { get; set; }
 
         public string Symbol { get; set;}
         

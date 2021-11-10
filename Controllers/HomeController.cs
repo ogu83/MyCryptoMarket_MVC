@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using MyCryptoMarket_MVC.Data;
 using MyCryptoMarket_MVC.Models;
 using MyCryptoMarket_MVC.Helper;
+using System.Threading.Tasks;
 
 namespace MyCryptoMarket_MVC.Controllers
 {
@@ -27,8 +28,15 @@ namespace MyCryptoMarket_MVC.Controllers
             }
         }
 
-        public IActionResult Index()
-        {            
+        public async Task<IActionResult> Index()
+        {
+            var isSignedIn = User.Identity.IsAuthenticated;
+            if (isSignedIn) 
+            {
+                await DbInitializer.InitializeUser(_context, User.Identity.Name);
+                await DbInitializer.InitializeBalances(_context, User.Identity.Name);
+            }
+
             return View();
         }
 

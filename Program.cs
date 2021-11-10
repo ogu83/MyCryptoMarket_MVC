@@ -36,6 +36,7 @@ namespace MyCryptoMarket_MVC
                     var context = services.GetRequiredService<CryptoMarketContext>();
                     context.Database.EnsureCreated();
                     await DbInitializer.Initialize(context);
+                    await DbInitializer.InitializeExchangeInfo(context);
                 }
                 catch (Exception ex)
                 {

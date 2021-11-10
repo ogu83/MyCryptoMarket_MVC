@@ -9,9 +9,49 @@ namespace MyCryptoMarket_MVC.Data
 {
     public static class DbInitializer
     {
+        public static async Task InitializeUser(CryptoMarketContext context, string userName) 
+        {
+            var user = context.Users.FirstOrDefault(x=>x.Name == userName);
+            await context.Users.AddAsync(new User { Name = userName });
+            await context.SaveChangesAsync();
+        }
 
+        public static async Task InitializeBalances(CryptoMarketContext context, string userName)
+        {
+            var user = context.Users.FirstOrDefault(x=>x.Name == userName);
+            if (user == null) 
+            {
+                return;
+            }
+
+            if (context.Balances.Any(x=>x.User_Id == user.Id))
+            {
+                return;
+            }
+
+            var baseAssets = context.Symbols.Select(x => x.BaseAsset);
+            var quotaAssets = context.Symbols.Select(x => x.QuoteAsset);
+            var assets = baseAssets.Union(quotaAssets);
+            assets = assets.Distinct();            
+            var balances = assets.Select(x => new Balance 
+            {
+                User_Id = user.Id,
+                AssetName = x,
+                AmountInUse = 0,
+                TotalAmount = x == "ETH" ? 1000 : x == "BTC" ? 100 : x == "USDT" ? 10000 : 0
+            });
+
+            await context.Balances.AddRangeAsync(balances);
+            await context.SaveChangesAsync();
+        }
+        
         public static async Task InitializeExchangeInfo(CryptoMarketContext context)
-        {            
+        {
+            if (context.Symbols.Any())
+            {
+                return;
+            }
+
             var binanceClient = new BinanceClient();
             var exchangeInfoResponse = await binanceClient.Spot.System.GetExchangeInfoAsync();
             if (exchangeInfoResponse.Success) 
@@ -27,14 +67,13 @@ namespace MyCryptoMarket_MVC.Data
                     BaseCommissionPrecision = x.BaseCommissionPrecision,
                     QuoteCommissionPrecision = x.QuoteCommissionPrecision
                 });
+
+                await context.Symbols.AddRangeAsync(symbols);
+                await context.SaveChangesAsync();
             }
         }
 
-        public static async Task InitializeKline(
-            CryptoMarketContext context, 
-            string Symbol, 
-            KlineInterval Interval, 
-            DateTime StartDate, DateTime EndDate) 
+        public static async Task InitializeKline(CryptoMarketContext context, string Symbol, KlineInterval Interval, DateTime StartDate, DateTime EndDate) 
         {
             var exist = context.Klines.Any(x=>x.Symbol == Symbol && x.CloseTime == EndDate && x.Interval == Interval) 
                         &&
@@ -80,8 +119,9 @@ namespace MyCryptoMarket_MVC.Data
                             cKline.Volume = kline.Volume;                            
                             context.Klines.Update(cKline);
                         }
-                    }                    
-                    context.SaveChanges();
+                    }     
+
+                    await context.SaveChangesAsync();
                 }
                 catch (Exception ex)
                 {
@@ -92,7 +132,7 @@ namespace MyCryptoMarket_MVC.Data
 
         public static async Task Initialize(CryptoMarketContext context)
         {
-            bool anyChanges = false;
+            var anyChanges = false;
 
             if (!context.Tickers.Any())
             {
@@ -128,8 +168,10 @@ namespace MyCryptoMarket_MVC.Data
                     throw new Exception(binanceTickersResponse.Error.Message);
                 }
 
-                if (anyChanges)
-                    context.SaveChanges();
+                if (anyChanges) 
+                {
+                    await context.SaveChangesAsync();
+                }                    
             }
         }
     }
