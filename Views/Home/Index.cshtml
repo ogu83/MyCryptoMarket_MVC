@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+
 @{
     ViewData["Title"] = "Home";
 }
@@ -121,7 +121,7 @@ else
                         caption: "Action",
                         cellTemplate: function(content, options) {
                             var symbol = options.data.Symbol;
-                            content.html(`<a href="/Trade/?symbol=${symbol}">Trade</a>`);
+                            content.html(`<a class="btn btn-sm btn-primary" href="/Trade/?symbol=${symbol}">Trade</a>`);
                         }
                     }]
                 }).dxDataGrid("instance");

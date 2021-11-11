@@ -1,0 +1,63 @@
+@using Newtonsoft.Json;
+@{
+    ViewData["Title"] = "Balance";
+}
+@model BalanceViewModel;
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="gridBalances"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>    
+        $(function() {
+            const balancesData = @(Html.Raw(JsonConvert.SerializeObject(Model.Balances)));
+            const _grdBalances = $("#gridBalances").dxDataGrid({
+                dataSource: balancesData,
+                showBorders: true,
+                paging: {
+                    pageSize: 15
+                },
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [5, 10, 15, 20, 25, 50, 100]
+                },
+                searchPanel: {
+                    visible: true,                    
+                    placeholder: "Search a Asset"
+                },
+                columns: [{
+                    dataField: "AssetName",
+                    caption: "Asset",
+                    dataType: "string"                    
+                }, {
+                    dataField: "TotalAmount",
+                    caption: "Total Amount",
+                    dataType: "number"                        
+                }, {
+                    dataField: "AmountInUse",
+                    caption: "AmountInUse",
+                    dataType: "number"
+                }, {
+                    dataField: "AvailableAmount",
+                    caption: "Available Amount",
+                    dataType: "number",
+                    sortOrder: 'desc'                                      
+                }, {
+                    caption: "Action",
+                    cellTemplate: function(content, options) {
+                        var assetName = options.data.AssetName;
+                        var html = "";
+                        html += `<div class="btn-group" role="group">`;
+                        html += `<a class="btn btn-sm btn-primary" href="#">Deposit</a>`;
+                        html += `<a class="btn btn-sm btn-primary" href="#">Withdraw</a>`;
+                        html += `</div>`;
+                        content.html(html);                            
+                    }
+                }]
+            }).dxDataGrid("instance");
+        });
+    </script>
+}

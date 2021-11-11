@@ -7,9 +7,49 @@ using MyCryptoMarket_MVC.Data;
 using MyCryptoMarket_MVC.Models;
 using MyCryptoMarket_MVC.Helper;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyCryptoMarket_MVC.Controllers
 {
+    [Authorize]
+    public class BalanceController : Controller
+    {
+        private readonly ILogger<BalanceController> _logger;
+        private readonly CryptoMarketContext _context;
+        private readonly MvcOptions _mvcOptions;
+
+        public BalanceController(ILogger<BalanceController> logger,
+            CryptoMarketContext context, 
+            IOptions<MvcOptions> mvcOptions)
+        {
+            _logger = logger;
+            _context = context;
+            if (mvcOptions != null)
+            {
+                _mvcOptions = mvcOptions.Value;
+            }
+        }
+
+        public async Task<IActionResult> Index()
+        {                
+            await DbInitializer.InitializeBalances(_context, User.Identity.Name);
+
+            var user = _context.Users.FirstOrDefault(x => x.Name == User.Identity.Name);
+            if (user == null) 
+            {
+                return new NotFoundResult();
+            }
+
+            var balances = _context.Balances.Where(x => x.User_Id == user.Id).ToList();
+            var viewModel = new BalanceViewModel 
+            {
+                Balances = balances
+            };
+
+            return View(viewModel);
+        }
+    }
+
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
