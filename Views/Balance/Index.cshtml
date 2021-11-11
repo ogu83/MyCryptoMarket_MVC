@@ -5,7 +5,10 @@
 @model BalanceViewModel;
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6">
+        <div id="chartBalances"></div>
+    </div>
+    <div class="col-md-6">
         <div id="gridBalances"></div>
     </div>
 </div>
@@ -56,8 +59,19 @@
                         html += `</div>`;
                         content.html(html);                            
                     }
-                }]
+                }],                
+                @* toolbar: {
+                    items: [{
+                        location: 'after',
+                        template: function(item, index, container) {  
+                            $("<div/>").dxSwitch({  
+                                value: true  
+                            }).appendTo(container);  
+                        }
+                    }],
+                } *@
             }).dxDataGrid("instance");
         });
+
     </script>
 }
