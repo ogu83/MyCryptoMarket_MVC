@@ -21,7 +21,7 @@
                 dataSource: balancesData,
                 showBorders: true,
                 paging: {
-                    pageSize: 15
+                    pageSize: 5
                 },
                 pager: {
                     showPageSizeSelector: true,
@@ -29,7 +29,8 @@
                 },
                 searchPanel: {
                     visible: true,                    
-                    placeholder: "Search a Asset"
+                    placeholder: "Search a Asset",
+                    width: 240
                 },
                 columns: [{
                     dataField: "AssetName",
@@ -37,39 +38,62 @@
                     dataType: "string"                    
                 }, {
                     dataField: "TotalAmount",
-                    caption: "Total Amount",
+                    caption: "Total",
                     dataType: "number"                        
                 }, {
                     dataField: "AmountInUse",
-                    caption: "AmountInUse",
+                    caption: "In Use",
                     dataType: "number"
                 }, {
                     dataField: "AvailableAmount",
-                    caption: "Available Amount",
+                    caption: "Available",
                     dataType: "number",
                     sortOrder: 'desc'                                      
                 }, {
                     caption: "Action",
-                    cellTemplate: function(content, options) {
+                    @* width: "240", *@
+                    cellTemplate: function(container, options) {
                         var assetName = options.data.AssetName;
-                        var html = "";
+                        @* var html = "";
                         html += `<div class="btn-group" role="group">`;
                         html += `<a class="btn btn-sm btn-primary" href="#">Deposit</a>`;
                         html += `<a class="btn btn-sm btn-primary" href="#">Withdraw</a>`;
                         html += `</div>`;
-                        content.html(html);                            
+                        container.html(html); *@
+
+                        $("<div/>").dxButton({
+                            stylingMode: 'contained',
+                            text: '',
+                            hint: 'Deposit',
+                            type: 'default',
+                            icon: 'upload',
+                            onClick() {
+                                //DevExpress.ui.notify('Deposit button was clicked');
+                            },
+                        }).appendTo(container);
+
+                        $("<div/>").dxButton({
+                            stylingMode: 'contained',
+                            text: '',
+                            hint: 'Withdraw',
+                            type: 'default',
+                            icon: 'download',
+                            onClick() {
+                                //DevExpress.ui.notify('Deposit button was clicked');
+                            },
+                        }).appendTo(container);
                     }
                 }],                
-                @* toolbar: {
-                    items: [{
+                toolbar: {
+                    @* items: [{
                         location: 'after',
                         template: function(item, index, container) {  
                             $("<div/>").dxSwitch({  
                                 value: true  
                             }).appendTo(container);  
                         }
-                    }],
-                } *@
+                    }], *@
+                }
             }).dxDataGrid("instance");
         });
 

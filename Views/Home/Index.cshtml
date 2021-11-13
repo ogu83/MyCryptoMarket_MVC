@@ -119,9 +119,9 @@ else
                         }
                     }, {
                         caption: "Action",
-                        cellTemplate: function(content, options) {
+                        cellTemplate: function(container, options) {
                             var symbol = options.data.Symbol;
-                            content.html(`<a class="btn btn-sm btn-primary" href="/Trade/?symbol=${symbol}">Trade</a>`);
+                            container.html(`<a class="btn btn-sm btn-primary" href="/Trade/?symbol=${symbol}">Trade</a>`);
                         }
                     }]
                 }).dxDataGrid("instance");
